@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.google.blockly.android">
+
+
+    <application>
+        <service
+            android:name=".codegen.CodeGeneratorService"
+            android:exported="false"/>
+    </application>
+
+</manifest>

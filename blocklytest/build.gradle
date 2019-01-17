@@ -1,0 +1,47 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion '28.0.3'
+
+    defaultConfig {
+        minSdkVersion 18
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        debug {
+            // To generate code coverage run './gradlew connectedCheck'.
+            // Coverage report at blocklylib/build/reports/coverage/debug/index.html
+            testCoverageEnabled true
+        }
+    }
+
+    packagingOptions {
+        // Suppress file collision error from hamcrest-core and hamcrest-integration JARs.
+        exclude 'LICENSE.txt'
+    }
+    lintOptions {
+          abortOnError false
+    }
+}
+
+dependencies {
+    implementation 'junit:junit:4.12'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation project(':blocklylib-vertical')
+    androidTestImplementation 'com.google.truth:truth:0.31'
+    androidTestImplementation 'com.android.support:appcompat-v7:27.1.1'
+    // For UI testing with Espresso.
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.2'
+    androidTestImplementation 'com.google.dexmaker:dexmaker:1.2'
+    androidTestImplementation 'com.google.dexmaker:dexmaker-mockito:1.2'
+}
+
