@@ -18,12 +18,16 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
+import android.util.JsonReader;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebChromeClient;
@@ -35,6 +39,12 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.SimpleMultiPartRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.blockly.android.AbstractBlocklyActivity;
 import com.google.blockly.android.BlocklySectionsActivity;
 import com.google.blockly.android.codegen.CodeGenerationRequest;
@@ -46,13 +56,21 @@ import com.google.blockly.utils.BlockLoadingException;
 import com.physicaloid.lib.Boards;
 import com.physicaloid.lib.Physicaloid;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,8 +86,12 @@ public class TurtleActivity extends BlocklySectionsActivity {
     private static final String SAVE_FILENAME = "turtle_workspace.xml";
     private static final String AUTOSAVE_FILENAME = "turtle_workspace_temp.xml";
     private TextView mGeneratedTextView;
+    private TextView mGeneratedErrorTextView;
     private FrameLayout mGeneratedFrameLayout;
     private String mNoCodeText;
+    private String mNoErrorText;
+    private EditText editURL;
+    String TARGET_BASE_PATH;
 
     static final List<String> TURTLE_BLOCK_DEFINITIONS = Arrays.asList(
             DefaultBlocks.COLOR_BLOCKS_PATH,
@@ -122,28 +144,31 @@ public class TurtleActivity extends BlocklySectionsActivity {
                         // Intent launchIntent = getPackageManager().getLaunchIntentForPackage("name.antonsmirnov.android.arduinodroid2");
                         //   if (launchIntent != null) {
                         // mPhysicaloid.upload(Boards.ARDUINO_UNO, "/storage/emulated/0/code/Blink.hex");
-                        try {
+                       // try {
                           //  get_ports();
-                            create_file(generatedCode);
+                        System.out.println(generatedCode);
+                            create_file(generatedCode,"code.ino");
+                            remotecompile("code.ino", getCompiler());
                             //  execute_shell("ls");
 
 
-                            execute_shell("touch Blink.cpp");
-                            execute_shell("cp hardware/arduino/cores/arduino/main.cpp Blink.cpp");
-
-                            execute_shell("sed -i wBlink1.cpp Blink.cpp files/Blink.ino");
-
-
-                            //execute_shell("cat Blink1.cpp");
-                            // execute_shell("/storage/emulated/0/code/hardware/tools/avr/bin/avr-g++");
-                            // execute_shell("sh -c avr-g++");
-                            //  execute_shell_2(new String[]{"sh -c", "/data/data/com.google.blockly.demo/hardware/tools/avr/bin/avr-g++"});
-                            //execute_shell_2(new String[]{"sh", "/storage/emulated/0/code/hardware/tools/avr/bin/avr-g++"});
-                            //  execute_shell(new String[] {"avr-g++","-x", "c++", "-MMD", "-c", "-mmcu=atmega328p", "-Wall", "-DF_CPU=16000000L", "-DARDUINO=160", "-DARDUINO_ARCH_AVR", "-D__PROG_TYPES_COMPAT__", "-I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino", "-I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard", "-Wall", "-Os", "Blink1.cpp"});
+//                            execute_shell("touch Blink.cpp");
+//                            execute_shell("cp hardware/arduino/cores/arduino/main.cpp Blink.cpp");
+//
+//                            execute_shell("sed -i wBlink1.cpp Blink.cpp files/Blink.ino");
+//                            execute_shell("avr-g++")
 
 
+                            //--execute_shell("cat Blink1.cpp");
+                            // --execute_shell("/storage/emulated/0/code/hardware/tools/avr/bin/avr-g++");
+                            // --execute_shell("sh -c avr-g++");
+                            // -- execute_shell_2(new String[]{"sh -c", "/data/data/com.google.blockly.demo/hardware/tools/avr/bin/avr-g++"});
+                            //--execute_shell_2(new String[]{"sh", "/storage/emulated/0/code/hardware/tools/avr/bin/avr-g++"});
+                            //  --execute_shell(new String[] {"avr-g++","-x", "c++", "-MMD", "-c", "-mmcu=atmega328p", "-Wall", "-DF_CPU=16000000L", "-DARDUINO=160", "-DARDUINO_ARCH_AVR", "-D__PROG_TYPES_COMPAT__", "-I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino", "-I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard", "-Wall", "-Os", "Blink1.cpp"});
 
-                              execute_shell("avr-g++ -x c++ -MMD -c -mmcu=atmega328p -Wall -DF_CPU=16000000L -DARDUINO=160 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino -I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard -Wall -Os Blink1.cpp");
+
+
+                              //--execute_shell("avr-g++ -x c++ -MMD -c -mmcu=atmega328p -Wall -DF_CPU=16000000L -DARDUINO=160 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino -I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard -Wall -Os Blink1.cpp");
                         /*  execute_shell("avr-g++ -x c++ -MMD -c -mmcu=atmega328p -Wall -DF_CPU=16000000L -DARDUINO=160 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino -I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard -Wall -Os /data/data/com.google.blockly.demo/hardware/arduino/cores/arduino/wiring_digital.c");
                             execute_shell("avr-g++ -x c++ -MMD -c -mmcu=atmega328p -Wall -DF_CPU=16000000L -DARDUINO=160 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino -I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard -Wall -Os /data/data/com.google.blockly.demo/hardware/arduino/cores/arduino/wiring.c");
                             execute_shell("avr-g++ -x c++ -MMD -c -mmcu=atmega328p -Wall -DF_CPU=16000000L -DARDUINO=160 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino -I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard -Wall -Os /data/data/com.google.blockly.demo/hardware/arduino/cores/arduino/wiring_analog.c");
@@ -167,24 +192,24 @@ public class TurtleActivity extends BlocklySectionsActivity {
                             execute_shell("avr-g++ -x c++ -MMD -c -mmcu=atmega328p -Wall -DF_CPU=16000000L -DARDUINO=160 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino -I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard -Wall -Os /data/data/com.google.blockly.demo/hardware/arduino/cores/arduino/IPAddress.cpp");
 */
                           //  execute_shell("avr-g++ -x c++ -MMD -c -mmcu=atmega328p -Wall -DF_CPU=16000000L -DARDUINO=160 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino -I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard -Wall -Os /data/data/com.google.blockly.demo/hardware/arduino/cores/arduino/HID.cpp");
-                            execute_shell("avr-g++ -x c++ -MMD -c -mmcu=atmega328p -Wall -DF_CPU=16000000L -DARDUINO=160 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino -I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard -Wall -Os /data/data/com.google.blockly.demo/hardware/arduino/cores/arduino/LiquidCrystal.cpp");
+                            // --execute_shell("avr-g++ -x c++ -MMD -c -mmcu=atmega328p -Wall -DF_CPU=16000000L -DARDUINO=160 -DARDUINO_ARCH_AVR -D__PROG_TYPES_COMPAT__ -I/data/data/com.google.blockly.demo/hardware/arduino/cores/arduino -I/data/data/com.google.blockly.demo/hardware/arduino/variants/standard -Wall -Os /data/data/com.google.blockly.demo/hardware/arduino/cores/arduino/LiquidCrystal.cpp");
 
                          //   execute_shell("avr-ar rcs libcore.a wiring.o wiring_digital.o wiring_analog.o wiring_shift.o wiring_pulse.o WMath.o WString.o WInterrupts.o Tone.o Stream.o Print.o IPAddress.o HardwareSerial.o");
-                            execute_shell("avr-ar rcs core.a CDC.cpp.o LiquidCrystal.o HardwareSerial.cpp.o HID.cpp.o IPAddress.cpp.o malloc.c.o new.cpp.o main.cpp.o new.cpp.o Print.cpp.o realloc.c.o Stream.cpp.o Tone.cpp.o Tone.cpp.o USBCore.cpp.o WInterrupts.c.o wiring.c.o wiring_analog.c.o wiring_digital.c.o wiring_pulse.c.o wiring_shift.c.o WMath.cpp.o WString.cpp.o");
-                           execute_shell("avr-gcc -mmcu=atmega328p -Wl,--gc-sections -Os -o Blink1.elf Blink1.o core.a -lc -lm");
-                            execute_shell("avr-objcopy -O ihex -R .eeprom Blink1.elf Blink1.hex");
-                            Toast.makeText(getApplicationContext(), "Compilation Success, trying to upload code!!",Toast.LENGTH_LONG).show();
+                            //--execute_shell("avr-ar rcs core.a CDC.cpp.o LiquidCrystal.o HardwareSerial.cpp.o HID.cpp.o IPAddress.cpp.o malloc.c.o new.cpp.o main.cpp.o new.cpp.o Print.cpp.o realloc.c.o Stream.cpp.o Tone.cpp.o Tone.cpp.o USBCore.cpp.o WInterrupts.c.o wiring.c.o wiring_analog.c.o wiring_digital.c.o wiring_pulse.c.o wiring_shift.c.o WMath.cpp.o WString.cpp.o");
+                           //--execute_shell("avr-gcc -mmcu=atmega328p -Wl,--gc-sections -Os -o Blink1.elf Blink1.o core.a -lc -lm");
+                            //--execute_shell("avr-objcopy -O ihex -R .eeprom Blink1.elf Blink1.hex");
+                            //--Toast.makeText(getApplicationContext(), "Compilation Success, trying to upload code!!",Toast.LENGTH_LONG).show();
 
 
                             // execute_shell("chmod -R 700 hardware");
                             //execute_shell("echo hi");
                             // execute_shell("rm -rf Blink.cpp");
-                        } catch (IOException e) {
-                            Toast.makeText(getApplicationContext(), "Error Compiling", Toast.LENGTH_LONG).show();
-                        }
+                        //} catch (IOException e) {
+                         //   Toast.makeText(getApplicationContext(), "Error Compiling", Toast.LENGTH_LONG).show();
+                        //}
 
 
-                         upload_code("/data/data/com.google.blockly.demo/Blink1.hex");
+
 
 
                         //  startActivity(launchIntent);//null pointer check in case package name was not found
@@ -210,6 +235,58 @@ public class TurtleActivity extends BlocklySectionsActivity {
 
     }
 
+    public void remotecompile(String filename,String url) {
+
+
+        SimpleMultiPartRequest smr = new SimpleMultiPartRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response", response);
+                        //Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
+                        if(response.contains("code.ino")) {
+                            mGeneratedErrorTextView.setVisibility(View.VISIBLE);
+                            mGeneratedErrorTextView.setText(response);
+                            //Toast.makeText(getApplicationContext(), response, Toast.LENGTH_LONG).show();
+                        }
+                        else {
+                            mGeneratedErrorTextView.setVisibility(View.GONE);
+                            mGeneratedErrorTextView.setText("");
+                            create_file(response, "out.hex");
+                            Toast.makeText(getApplicationContext(), "Compilation Success, Uploading", Toast.LENGTH_LONG).show();
+                            upload_code("/data/data/com.google.blockly.demo/out.hex");
+                        }
+                        //System.out.println(response);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if(error.toString().equals("com.android.volley.error.ServerError")) {
+                    mGeneratedErrorTextView.setVisibility(View.VISIBLE);
+                    mGeneratedErrorTextView.setText("Error:\n\t Problem Connecting Remote Compiler: null reply from compiler");
+                }
+                else if(error.getMessage().contains("java.net.ConnectException")) {
+                    mGeneratedErrorTextView.setVisibility(View.VISIBLE);
+                    mGeneratedErrorTextView.setText("Error:\n\t Problem Connecting Remote Compiler: ConnectException");
+                    //Toast.makeText(getApplicationContext(), "Error Connecting Remote Compiler", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    mGeneratedErrorTextView.setVisibility(View.VISIBLE);
+                    mGeneratedErrorTextView.setText(error.getMessage());
+                    //Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+//        Map<String,String> Headers = new HashMap<>();
+//        Headers.put("board", "uno");
+//        Headers.put("file", "file:///android_asset/blink.ino");
+        smr.addMultipartParam("board", "Text", "uno");
+        smr.addFile("file", TARGET_BASE_PATH+filename);
+        RequestQueue mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        mRequestQueue.add(smr);
+    }
+
   /*  public void get_ports() {
         PeripheralManager manager = PeripheralManager.getInstance();
         List<String> deviceList = manager.getUartDeviceList();
@@ -221,14 +298,14 @@ public class TurtleActivity extends BlocklySectionsActivity {
         }
     }*/
 
-    public void create_file(String fileContents){
-        String filename = "Blink.ino";
+    public void create_file(String fileContents, String filename){
         FileOutputStream outputStream;
-
+        File f = new File(TARGET_BASE_PATH+filename);
         try {
-            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream.write(fileContents.getBytes());
-            outputStream.close();
+            FileOutputStream fooStream = new FileOutputStream(f, false);
+            byte[] myBytes = fileContents.getBytes();
+            fooStream.write(myBytes);
+            fooStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -277,13 +354,68 @@ public class TurtleActivity extends BlocklySectionsActivity {
     }
 
     @Override
+    public void onCompilerChoose() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View view = inflater.inflate(R.layout.alert, null);
+
+        builder.setView(view)
+                .setCancelable(false)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        JSONObject obj = null;
+                        try {
+                            obj = new JSONObject(loadJSONFromFile());
+                            obj.put("url",editURL.getText().toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        create_file(obj.toString(),"app.json");
+                    }
+                })
+                .setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        //  Action for 'NO' Button
+                        dialog.cancel();
+
+                    }
+                });
+        editURL = view.findViewById(R.id.edit_url);
+        //Creating dialog box
+        AlertDialog alert = builder.create();
+        //Setting the title manually
+        alert.setTitle("Compiler:"+getCompiler());
+        alert.show();
+    }
+
+    public String loadJSONFromFile() {
+        String json = null;
+        try {
+            File file = new File(TARGET_BASE_PATH+"app.json");
+            InputStream is = new FileInputStream(file);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+    }
+
+    @Override
     public void onCodeWorkspace() {
         if(mGeneratedTextView.getVisibility()!= View.VISIBLE){
             mGeneratedTextView.setVisibility(View.VISIBLE);
+            if(!mGeneratedErrorTextView.getText().toString().equals(""))
+                mGeneratedErrorTextView.setVisibility(View.VISIBLE);
             updateTextMinWidth();
         }
         else {
             mGeneratedTextView.setVisibility(View.GONE);
+            mGeneratedErrorTextView.setVisibility(View.GONE);
         }
     }
 
@@ -305,13 +437,14 @@ public class TurtleActivity extends BlocklySectionsActivity {
         if (id == R.id.action_demo_android) {
             loadWorkspace = true;
             filename = "android.xml";
-        } else if (id == R.id.action_demo_lacey_curves) {
-            loadWorkspace = true;
-            filename = "lacey_curves.xml";
-        } else if (id == R.id.action_demo_paint_strokes) {
-            loadWorkspace = true;
-            filename = "paint_strokes.xml";
         }
+//        else if (id == R.id.action_demo_lacey_curves) {
+//            loadWorkspace = true;
+//            filename = "lacey_curves.xml";
+//        } else if (id == R.id.action_demo_paint_strokes) {
+//            loadWorkspace = true;
+//            filename = "paint_strokes.xml";
+//        }
 
         if (loadWorkspace) {
             String assetFilename = "turtle/demo_workspaces/" + filename;
@@ -389,7 +522,7 @@ public class TurtleActivity extends BlocklySectionsActivity {
         // Create the game levels with the labels "Level 1", "Level 2", etc., displaying
         // them as simple text items in the sections drawer.
         String[] levelNames = new String[MAX_LEVELS];
-
+        TARGET_BASE_PATH = "/data/data/"+this.getPackageName()+"/";
             levelNames[0] = "ArduBasic";
             levelNames[1] = "ArduAdvanced";
 
@@ -410,8 +543,10 @@ public class TurtleActivity extends BlocklySectionsActivity {
         View root = getLayoutInflater().inflate(R.layout.split_content, null);
         mGeneratedFrameLayout = root.findViewById(R.id.generated_workspace);
         mGeneratedTextView = (TextView) root.findViewById(R.id.generated_code);
+        mGeneratedErrorTextView = (TextView) root.findViewById(R.id.generated_error);
         updateTextMinWidth();
 
+        mNoErrorText = mGeneratedErrorTextView.getText().toString();
         mNoCodeText = mGeneratedTextView.getText().toString(); // Capture initial value.
       /*  mTurtleWebview = (WebView) root.findViewById(R.id.turtle_runtime);
         mTurtleWebview.getSettings().setJavaScriptEnabled(true);
@@ -440,11 +575,6 @@ public class TurtleActivity extends BlocklySectionsActivity {
     static void addDefaultVariables(BlocklyController controller) {
         // TODO: (#22) Remove this override when variables are supported properly
         controller.addVariable("item");
-        controller.addVariable("count");
-        controller.addVariable("marshmallow");
-        controller.addVariable("lollipop");
-        controller.addVariable("kitkat");
-        controller.addVariable("android");
     }
 
     /**
@@ -467,5 +597,22 @@ public class TurtleActivity extends BlocklySectionsActivity {
     @NonNull
     protected String getWorkspaceAutosavePath() {
         return AUTOSAVE_FILENAME;
+    }
+
+
+    public void onClick(View view) {
+        mGeneratedErrorTextView.setVisibility(View.GONE);
+    }
+
+    public String getCompiler() {
+        JSONObject obj = null;
+        String url = null;
+        try {
+            obj = new JSONObject(loadJSONFromFile());
+            url = obj.get("url").toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return url;
     }
 }

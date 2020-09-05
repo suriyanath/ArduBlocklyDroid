@@ -61,16 +61,16 @@ public abstract class BlocklySectionsActivity extends AbstractBlocklyActivity
             boolean isFirstRun = wmbPreference.getBoolean("FIRSTRUN", true);
             if (isFirstRun) {
                 copyFileOrDir(""); // Code to run once
-                try {
-                    execute_shell("chmod -R 700 busybox");
-                    execute_shell("chmod -R 700 local.tar.gz");
-                    execute_shell("./busybox gzip -d local.tar.gz");
-                    execute_shell("./busybox tar -xvf local.tar");
-                    execute_shell("chmod -R 700 local");
-                    execute_shell("chmod -R 700 hardware");
-                } catch (IOException e) {
+                //try {
+//                    execute_shell("chmod -R 700 busybox");
+//                    execute_shell("chmod -R 700 local.tar.gz");
+//                    execute_shell("./busybox gzip -d local.tar.gz");
+//                    execute_shell("./busybox tar -xvf local.tar");
+//                    execute_shell("chmod -R 700 local");
+//                    execute_shell("chmod -R 700 hardware");
+               // } catch (IOException e) {
                  //   e.printStackTrace();
-                }
+                //}
                 SharedPreferences.Editor editor = wmbPreference.edit();
                 editor.putBoolean("FIRSTRUN", false);
                 editor.commit();

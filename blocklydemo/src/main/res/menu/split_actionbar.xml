@@ -31,4 +31,5 @@
         android:orderInCategory="14"
         android:title="@string/action_clear"
         app:showAsAction="ifRoom" />
+
 </menu>

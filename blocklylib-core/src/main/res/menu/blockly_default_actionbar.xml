@@ -17,6 +17,11 @@
           android:orderInCategory="12" app:showAsAction="ifRoom"
         android:icon="@drawable/ic_layers_clear_white_24dp"/>
     <item
+        android:id="@+id/action_compiler"
+        android:orderInCategory="14"
+        android:title="@string/action_compiler"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/action_run"
         android:icon="@drawable/ic_play_arrow_white_24dp"
         android:orderInCategory="15"

@@ -4,14 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:orientation="vertical"
+    tools:visibility="visible">
 
     <FrameLayout
         android:id="@+id/generated_workspace"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        >
+        android:layout_weight="1">
+
+
+
 
         <include layout="@layout/blockly_unified_workspace" />
     </FrameLayout>
@@ -23,5 +26,18 @@
         android:layout_weight="1"
         android:text="@string/split_generate_message"
         android:textIsSelectable="true"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
+
+    <TextView
+        android:id="@+id/generated_error"
+        android:textColor="#FF0000"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_gravity="bottom"
+        android:onClick="onClick"
+        android:textIsSelectable="true"
+        tools:visibility="gone"/>
+
+
 </LinearLayout>
+

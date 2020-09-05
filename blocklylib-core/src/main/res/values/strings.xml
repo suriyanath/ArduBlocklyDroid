@@ -12,6 +12,7 @@
     <string name="action_save">Save</string>
     <string name="action_load">Load</string>
     <string name="action_clear">Clear</string>
+    <string name="action_compiler">Compiler</string>
     <string name="action_airstrike">Airstrike</string>
     <string name="action_carpet_bomb">Carpet Bomb</string>
     <string name="action_spaghetti">Spaghetti</string>

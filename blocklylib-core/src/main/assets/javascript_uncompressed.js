@@ -385,8 +385,8 @@ Blockly.JavaScript.controls_repeat_ext = function(a) {
     var d = Blockly.JavaScript.variableDB_.getDistinctName("count", Blockly.Variables.NAME_TYPE),
         e = b;
     b.match(/^\w+$/) || Blockly.isNumber(b) || (e = Blockly.JavaScript.variableDB_.getDistinctName("repeat_end", Blockly.Variables.NAME_TYPE),
-        a += "var " + e + " = " + b + ";\n");
-    return a + ("for (var " + d + " = 0; " + d + " < " + e + "; " + d + "++) {\n" + c + "}\n")
+        a += "int " + e + " = " + b + ";\n");
+    return a + ("for (int " + d + " = 0; " + d + " < " + e + "; " + d + "++) {\n" + c + "}\n")
 };
 
 Blockly.JavaScript.setup_loop = function(a) {
@@ -408,7 +408,7 @@ Blockly.JavaScript.controls_whileUntil = function(a) {
 };
 Blockly.JavaScript.controls_for = function(a) {
     var b = Blockly.JavaScript.variableDB_.getName(a.getFieldValue("VAR"), Blockly.Variables.NAME_TYPE),
-        c = Blockly.JavaScript.valueToCode(a, "FROM", Blockly.Jmath_numberavaScript.ORDER_ASSIGNMENT) || "0",
+        c = Blockly.JavaScript.valueToCode(a, "FROM", Blockly.JavaScript.ORDER_ASSIGNMENT) || "0",
         d = Blockly.JavaScript.valueToCode(a, "TO", Blockly.JavaScript.ORDER_ASSIGNMENT) || "0",
         e = Blockly.JavaScript.valueToCode(a, "BY", Blockly.JavaScript.ORDER_ASSIGNMENT) || "1",
         f = Blockly.JavaScript.statementToCode(a, "DO");

@@ -139,6 +139,9 @@ public abstract class AbstractBlocklyActivity extends AppCompatActivity {
         } else if (id == R.id.action_clear) {
             onClearWorkspace();
             return true;
+        } else if (id == R.id.action_compiler) {
+                onCompilerChoose();
+                return true;
         } else if (id == R.id.action_run) {
             if (getController().getWorkspace().hasBlocks()) {
                 onRunCode();
@@ -183,6 +186,9 @@ public abstract class AbstractBlocklyActivity extends AppCompatActivity {
      */
     public void onSaveWorkspace() {
         mBlocklyActivityHelper.saveWorkspaceToAppDirSafely(getWorkspaceSavePath());
+    }
+
+    public void onCompilerChoose() {
     }
 
     /**

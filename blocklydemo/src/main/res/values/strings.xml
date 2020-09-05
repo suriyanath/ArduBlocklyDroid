@@ -36,7 +36,7 @@
     <string name="pinch_zoom_menuitem">Pinch Zoom</string>
     <string name="log_events_menuitem">Log Events</string>
 
-    <string name="action_demo_android">Android</string>
+    <string name="action_demo_android">Blink Example</string>
     <string name="action_demo_lacey_curves">Lacey Curves</string>
     <string name="action_demo_paint_strokes">Paint Strokes</string>
 </resources>

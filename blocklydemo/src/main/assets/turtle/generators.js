@@ -106,7 +106,7 @@ Blockly.JavaScript['bluetooth_sensor'] = function (block) {
   //define bluetooth settings
   Blockly.JavaScript.setups_['setup_bluetooth'] = "\n Serial.begin("+baudrate+");";
   Blockly.JavaScript.definitions_['define_bluetooth'] = "char readBluetooth()\n{\n while(Serial.available())\n {\n char inChar = (char)Serial.read();\n return inChar;\n}\n}\n";
-    var code = 'readbluetooth()';
+    var code = 'readBluetooth()';
 
     return [code, Blockly.JavaScript.ORDER_NONE];
 };

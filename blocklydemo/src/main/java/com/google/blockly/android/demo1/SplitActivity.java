@@ -164,4 +164,5 @@ public class SplitActivity extends AbstractBlocklyActivity {
     protected String getWorkspaceAutosavePath() {
         return AUTOSAVE_FILENAME;
     }
+
 }
