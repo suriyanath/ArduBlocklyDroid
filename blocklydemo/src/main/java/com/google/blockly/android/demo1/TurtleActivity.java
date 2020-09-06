@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -72,6 +74,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -90,8 +93,10 @@ public class TurtleActivity extends BlocklySectionsActivity {
     private FrameLayout mGeneratedFrameLayout;
     private String mNoCodeText;
     private String mNoErrorText;
+    private Boolean initial=true;
     private EditText editURL;
     String TARGET_BASE_PATH;
+    Physicaloid mPhysicaloid = new Physicaloid(this);
 
     static final List<String> TURTLE_BLOCK_DEFINITIONS = Arrays.asList(
             DefaultBlocks.COLOR_BLOCKS_PATH,
@@ -228,11 +233,39 @@ public class TurtleActivity extends BlocklySectionsActivity {
             };
 
     public void upload_code(String file){
-        Physicaloid mPhysicaloid = new Physicaloid(this);
-            mPhysicaloid.upload(Boards.ARDUINO_UNO,file);
+        UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+        if(deviceList.isEmpty()){
+            mGeneratedErrorTextView.setVisibility(View.VISIBLE);
+            mGeneratedErrorTextView.setText("ERROR: Connect USB and try again");
+        }
+        else {
+            Boolean value = OpenUSB();
+            //Toast.makeText(getApplicationContext(), value.toString(), Toast.LENGTH_SHORT).show();
+            if (value) {
+                    Toast.makeText(getApplicationContext(), "Compilation Success, Uploading", Toast.LENGTH_LONG).show();
+                    mPhysicaloid.upload(Boards.ARDUINO_UNO, file);
+                    Toast.makeText(getApplicationContext(), "Uploading Completed", Toast.LENGTH_LONG).show();
+                }
+            else {
+                mGeneratedErrorTextView.setVisibility(View.VISIBLE);
+                mGeneratedErrorTextView.setText("ERROR: Connect USB and try again");
+            }
+        }
 
            //Toast.makeText(getApplicationContext(), "Check if Program uploaded ", Toast.LENGTH_LONG).show();
 
+    }
+
+    public Boolean OpenUSB() {
+        if(initial) {
+            initial = false;
+            mPhysicaloid.upload(Boards.ARDUINO_UNO, "/data/data/com.google.blockly.demo/code.ino");
+            return initial;
+        }
+        else {
+                return true;
+        }
     }
 
     public void remotecompile(String filename,String url) {
@@ -253,7 +286,6 @@ public class TurtleActivity extends BlocklySectionsActivity {
                             mGeneratedErrorTextView.setVisibility(View.GONE);
                             mGeneratedErrorTextView.setText("");
                             create_file(response, "out.hex");
-                            Toast.makeText(getApplicationContext(), "Compilation Success, Uploading", Toast.LENGTH_LONG).show();
                             upload_code("/data/data/com.google.blockly.demo/out.hex");
                         }
                         //System.out.println(response);
