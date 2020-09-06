@@ -1,5 +1,5 @@
 # ArduBlocklyDroid
-ArduBlocklyDroid is an Android app to program Arduino using smartphone or tablet that runs an Android OS.
+ArduBlocklyDroid is an Android app to program Arduino UNO using smartphone or tablet that runs an Android OS.
 
 This internally uses remote compiler and physicaloid library to upload hex code to arduino
 
